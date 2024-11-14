@@ -22,6 +22,7 @@ const elements = {
     controlPlane: document.querySelector("#app #control-plane"),
     createAppTrigger: document.querySelector("#app #control-plane #create-app-trigger"),
     createModelTrigger: document.querySelector("#app #control-plane #create-model-trigger"),
+    downloadZIPTrigger: document.querySelector("#download-zip-trigger"),
 }
 
 const dialogs = {
@@ -61,6 +62,7 @@ function registerEvenets() {
     registerCreateProjectEvent();
     registerCreateAppEvent();
     registerCreateModelEvent();
+    registerDownloadZIPEvent();
 }
 
 function registerCreateProjectFormEvent() {
@@ -143,5 +145,15 @@ function registerCreateModelEvent() {
             `);
 
         toggleButton(elements.createModelTrigger, false)
+    })
+}
+
+async function registerDownloadZIPEvent() {
+    elements.downloadZIPTrigger.addEventListener(events.click, async () => {
+        toggleButton(elements.downloadZIPTrigger, true)
+
+        await downloadProject()
+
+        toggleButton(elements.downloadZIPTrigger, false)
     })
 }
