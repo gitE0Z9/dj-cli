@@ -88,8 +88,6 @@ function registerCreateProjectEvent() {
 }
 
 function loadApplication() {
-    // hljs.highlightAll();
-
     const projectName = loadValue(storeKeys.projectName);
     chdir(projectName);
 
@@ -109,12 +107,28 @@ function loadApplication() {
 }
 
 function registerViewFileEvent(node) {
-    node.addEventListener(events.click, async () => {
+    node.addEventListener(events.click, async (event) => {
+        event.stopPropagation()
+
         // TODO: check if ./ is needed
         const path = "./" + node.dataset.path;
-        const content = await loadFile(path);
-        window.editor.setValue(content);
-        // elements.editor.innerText = content;
+        if (await isFile(path)) {
+            const content = await loadFile(path);
+            window.editor.setValue(content);
+        }
+        else {
+            const topNode = document.createElement("ul")
+            node.appendChild(topNode)
+            for (entry of listDir(path)) {
+                const childNode = document.createElement("li")
+                childNode.classList.add("list-unstyled")
+                childNode.textContent = entry
+                childNode.dataset.path = `${path}/${entry}`;
+                // TODO: seems recursive
+                registerViewFileEvent(childNode);
+                topNode.appendChild(childNode)
+            }
+        }
     })
 }
 
@@ -129,6 +143,7 @@ function registerCreateAppEvent() {
         toggleButton(elements.createAppTrigger, false)
 
         // invalidate fs
+        // TOOD: better
         const node = document.createElement("li")
         node.classList.add("list-unstyled")
         node.textContent = appName

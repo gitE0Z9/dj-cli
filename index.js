@@ -45,7 +45,6 @@ function listDir(dir) {
     return program.console.FS.readdir(`./${dir}`).filter(file => file !== '.' && file !== '..')
 }
 
-
 function chdir(dir) {
     return program.console.FS.chdir(dir)
 }
@@ -71,24 +70,29 @@ async function chmodRecursive(path, mode) {
                     file_path = os.path.join(root, filename)
                     os.chmod(file_path, mode)
         
-        chmod_recursive("${path}", ${mode})
+        chmod_recursive("${path}", 0o${mode})
         `)
 }
 
-function loadFile(path) {
+async function isFile(path) {
+    await chmodRecursive(path, 500)
+    return await runScript(`from pathlib import Path; Path("${path}").is_file()`)
+}
+
+async function loadFile(path) {
     program.console.FS.chmod(path, 400)
     return program.console.FS.readFile(path, { encoding: "utf8" })
 }
 
-function saveFile(path, content) {
-    program.console.FS.chmod(path, 600)
+async function saveFile(path, content) {
+    await chmodRecursive(path, 600)
     return program.console.FS.writeFile(path, content)
 }
 
 async function downloadProject() {
-    const projectName = loadValue(storeKeys.projectName)
     await chmodRecursive(".", 500)
 
+    const projectName = loadValue(storeKeys.projectName)
     const zipFileBase64 = await runScript(`
         import io
         import os
