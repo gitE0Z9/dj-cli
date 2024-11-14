@@ -1,0 +1,5 @@
+#editor{
+    min-height: 80vh;
+    max-height: 100vh;
+    overflow-x: scroll;
+}

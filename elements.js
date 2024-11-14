@@ -18,7 +18,7 @@ const elements = {
     fsViewer: document.querySelector("#fs #fs-viewer"),
     fsViewerNode: document.querySelectorAll("#fs #fs-viewer li"),
     editor: document.querySelector("#app #editor"),
-    codeArea: document.querySelector("#app #editor code"),
+    // codeArea: document.querySelector("#app #editor code"),
     controlPlane: document.querySelector("#app #control-plane"),
     createAppTrigger: document.querySelector("#app #control-plane #create-app-trigger"),
     createModelTrigger: document.querySelector("#app #control-plane #create-model-trigger"),
@@ -88,7 +88,7 @@ function registerCreateProjectEvent() {
 }
 
 function loadApplication() {
-    hljs.highlightAll();
+    // hljs.highlightAll();
 
     const projectName = loadValue(storeKeys.projectName);
     chdir(projectName);
@@ -113,7 +113,8 @@ function registerViewFileEvent(node) {
         // TODO: check if ./ is needed
         const path = "./" + node.dataset.path;
         const content = await loadFile(path);
-        elements.codeArea.innerText = content;
+        window.editor.setValue(content);
+        // elements.editor.innerText = content;
     })
 }
 
@@ -121,11 +122,19 @@ function registerCreateAppEvent() {
     elements.createAppTrigger.addEventListener(events.click, async () => {
         toggleButton(elements.createAppTrigger, true)
 
-        await runDjangoAdminCommand("startapp", "myapp")
+        const appName = "myapp";
+
+        await runDjangoAdminCommand("startapp", appName)
 
         toggleButton(elements.createAppTrigger, false)
 
-        // invalidate fs 
+        // invalidate fs
+        const node = document.createElement("li")
+        node.classList.add("list-unstyled")
+        node.textContent = appName
+        node.dataset.path = appName;
+        registerViewFileEvent(node);
+        elements.fsViewer.appendChild(node)
     })
 }
 
